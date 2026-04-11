@@ -1,4 +1,4 @@
-# Python-generated files
+# python-generated files
 __pycache__/
 *.py[oc]
 build/
@@ -6,22 +6,21 @@ dist/
 wheels/
 *.egg-info
 
-# Virtual environments
+# virtual environments
 .venv
 
-# Variables de entorno (contienen claves secretas, NUNCA subir)
 .env
 
-# Base de datos local
+# local db
 *.db
 *.sqlite3
 
-# Logs
+# logs
 *.log
 logs/
 
 
-# IDEs
+# ides
 .vscode/
 .idea/
 *.swp
@@ -30,5 +29,5 @@ logs/
 # macOS
 .DS_Store
 
-# Reportes generados
+# reports generated
 reports/output/
