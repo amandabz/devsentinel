@@ -1,7 +1,7 @@
 [project]
 name = "devsentinel"
 version = "0.1.0"
-description = "Add your description here"
+description = "Autonomous Docker monitoring & incident remediation system with AI-powered diagnosis and Telegram alerts"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
