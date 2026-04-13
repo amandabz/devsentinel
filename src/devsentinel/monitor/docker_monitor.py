@@ -7,14 +7,25 @@ class DockerMonitor:
         self.client = docker.from_env()
 
     def get_containers(self):
-        return self.client.containers.list()
+        return self.client.containers.list(all=True)
 
     def get_container_stats(self, container):
-        stats = container.stats(stream=False)
         name = container.name
         status = container.status
 
-        # cpu
+        if status != "running":
+            return {
+                "name": name,
+                "status": status,
+                "cpu_percent": 0.0,
+                "mem_usage_mb": 0.0,
+                "mem_percent": 0.0,
+                "timestamp": datetime.now(timezone.utc).isoformat()
+            }
+
+        stats = container.stats(stream=False)
+
+        # CPU
         cpu_delta = stats["cpu_stats"]["cpu_usage"]["total_usage"] - \
                     stats["precpu_stats"]["cpu_usage"]["total_usage"]
         system_delta = stats["cpu_stats"]["system_cpu_usage"] - \
@@ -22,7 +33,7 @@ class DockerMonitor:
         num_cpus = stats["cpu_stats"]["online_cpus"]
         cpu_percent = (cpu_delta / system_delta) * num_cpus * 100
 
-        # memory
+        # Memoria
         mem_usage = stats["memory_stats"]["usage"]
         mem_limit = stats["memory_stats"]["limit"]
         mem_percent = (mem_usage / mem_limit) * 100
