@@ -30,7 +30,7 @@ DevSentinel automates that entire workflow.
 
 ## Roadmap
 
-- [ ] Phase 1 — Docker container monitoring and basic Telegram alerts
+- [x] Phase 1 — Docker container monitoring and basic Telegram alerts
 - [ ] Phase 2 — LLM-powered incident analysis
 - [ ] Phase 3 — Remediation with Telegram approval flow
 - [ ] Phase 4 — Web dashboard and automatic PDF post-mortem generation
