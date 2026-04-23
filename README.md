@@ -37,23 +37,54 @@ DevSentinel automates that entire workflow.
 
 ## Getting started
 
+### Prerequisites
+
+- [uv](https://docs.astral.sh/uv/getting-started/installation/) — Python package manager
+- [Docker](https://www.docker.com/) or [OrbStack](https://orbstack.dev/) (recommended for Mac)
+- A [Telegram bot](https://t.me/BotFather) — create one with BotFather and get your token
+- Your Telegram Chat ID — get it by messaging [@userinfobot](https://t.me/userinfobot)
+
+### Installation
+
 ```bash
 git clone https://github.com/amandabz/devsentinel.git
 cd devsentinel
 uv sync
-cp .env.example .env  # Fill in your keys
-uv run uvicorn src.devsentinel.main:app --reload
+cp .env.example .env  # Fill in your keys (see below)
 ```
 
-## Environment variables
+### Environment variables
 
 Copy `.env.example` to `.env` and fill in the values:
 
 ```
-OPENAI_API_KEY=your_key
 TELEGRAM_BOT_TOKEN=your_token
 TELEGRAM_CHAT_ID=your_chat_id
 ```
+
+### Run
+
+```bash
+uv run python -m devsentinel.main
+```
+
+You should see `🛡️ DevSentinel started. Monitoring containers...` in the terminal. DevSentinel will now check your containers every 30 seconds and send a Telegram alert if any of them goes down or exceeds CPU/memory thresholds.
+
+### Test it
+
+Start a sample container:
+
+```bash
+docker run -d --name test-nginx nginx
+```
+
+Then stop it to trigger an alert:
+
+```bash
+docker stop test-nginx
+```
+
+Within 30 seconds you should receive a Telegram notification.
 
 ---
 
