@@ -22,7 +22,7 @@ DevSentinel automates that entire workflow.
 ## Tech stack
 
 - **Backend:** Python · FastAPI · Docker SDK
-- **AI:** OpenAI API / Gemini
+- **AI:** Groq API
 - **Database:** SQLite
 - **Alerts:** Telegram Bot API
 - **Frontend:** HTML · CSS · JavaScript
