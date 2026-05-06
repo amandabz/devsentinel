@@ -33,7 +33,7 @@ class DockerMonitor:
         num_cpus = stats["cpu_stats"]["online_cpus"]
         cpu_percent = (cpu_delta / system_delta) * num_cpus * 100
 
-        # Memoria
+        # Memory
         mem_usage = stats["memory_stats"]["usage"]
         mem_limit = stats["memory_stats"]["limit"]
         mem_percent = (mem_usage / mem_limit) * 100
@@ -50,3 +50,11 @@ class DockerMonitor:
     def get_all_stats(self):
         containers = self.get_containers()
         return [self.get_container_stats(c) for c in containers]
+
+    def get_container_stats_by_name(self, name: str) -> dict:
+        container = self.client.containers.get(name)
+        return self.get_container_stats(container)
+
+    def stream_events(self):
+        for event in self.client.events(decode=True, filters={"type": "container"}):
+            yield event
