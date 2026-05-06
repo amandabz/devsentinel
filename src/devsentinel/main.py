@@ -4,6 +4,9 @@ from dotenv import load_dotenv
 
 from devsentinel.monitor.docker_monitor import DockerMonitor
 from devsentinel.alerts.telegram_bot import TelegramAlerter
+from devsentinel.ai.analyzer import IncidentAnalyzer
+from devsentinel.monitor.metrics_collector import MetricsCollector
+
 
 load_dotenv()
 
@@ -13,7 +16,7 @@ MEM_THRESHOLD = 80.0
 
 previous_states = {}
 
-def check_and_alert(monitor: DockerMonitor, alerter: TelegramAlerter) -> None:
+def check_and_alert(monitor: DockerMonitor, alerter: TelegramAlerter, analyzer: IncidentAnalyzer, collector: MetricsCollector) -> None:
     stats = monitor.get_all_stats()
 
     for container in stats:
@@ -37,9 +40,27 @@ def check_and_alert(monitor: DockerMonitor, alerter: TelegramAlerter) -> None:
             message = "🛡️ *DevSentinel Alert*\n\n"
             message += f"Container: `{name}`\n"
             message += "\n".join(alerts)
+
+            logs = collector.get_logs(name)
+            analysis = analyzer.analyze(container, logs)
+            message += f"\n\n{analysis}"
+
             alerter.alert(message)
 
         previous_states[name] = current_alert_key if alerts else ""
+
+def initialize_states(monitor: DockerMonitor) -> None:
+    stats = monitor.get_all_stats()
+    for container in stats:
+        name = container["name"]
+        alerts = []
+        if container["cpu_percent"] > CPU_THRESHOLD:
+            alerts.append(f"⚠️ High CPU: {container['cpu_percent']}%")
+        if container["mem_percent"] > MEM_THRESHOLD:
+            alerts.append(f"⚠️ High Memory: {container['mem_percent']}%")
+        if container["status"] != "running":
+            alerts.append(f"🔴 Container is {container['status']}")
+        previous_states[name] = "|".join(alerts)
 
 def main() -> None:
     monitor = DockerMonitor()
@@ -47,11 +68,15 @@ def main() -> None:
         token=os.getenv("TELEGRAM_BOT_TOKEN", ""),
         chat_id=os.getenv("TELEGRAM_CHAT_ID", "")
     )
+    analyzer = IncidentAnalyzer(api_key=os.getenv("GROQ_API_KEY", ""))
+    collector = MetricsCollector()
 
     print("🛡️ DevSentinel started. Monitoring containers...")
+    initialize_states(monitor)
+    print("✅ Initial state captured. Watching for changes...")
 
     while True:
-        check_and_alert(monitor, alerter)
+        check_and_alert(monitor, alerter, analyzer, collector)
         time.sleep(POLL_INTERVAL)
 
 if __name__ == "__main__":
